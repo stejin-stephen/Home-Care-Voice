@@ -58,6 +58,12 @@ router.patch("/escalations/:id", async (req, res): Promise<void> => {
   res.json(formatEscalation(esc, null));
 });
 
+router.delete("/escalations/:id", async (req, res): Promise<void> => {
+  const { id } = GetEscalationParams.parse(req.params);
+  await db.delete(escalationsTable).where(eq(escalationsTable.id, id));
+  res.status(204).send();
+});
+
 function formatEscalation(e: typeof escalationsTable.$inferSelect, clientName: string | null | undefined) {
   return {
     ...e,

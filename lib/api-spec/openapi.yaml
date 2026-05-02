@@ -360,6 +360,44 @@ paths:
                 $ref: "#/components/schemas/CallLog"
         "404":
           description: Not found
+    patch:
+      operationId: updateCallLog
+      tags: [call-logs]
+      summary: Update a call log
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCallLogBody"
+      responses:
+        "200":
+          description: Updated call log
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CallLog"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteCallLog
+      tags: [call-logs]
+      summary: Delete a call log
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
 
   /reminders:
     get:
@@ -525,6 +563,19 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Escalation"
+    delete:
+      operationId: deleteEscalation
+      tags: [escalations]
+      summary: Delete an escalation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
 
   /dashboard/summary:
     get:
@@ -955,6 +1006,29 @@ components:
           type: ["integer", "null"]
       required:
         - outcome
+
+    UpdateCallLogBody:
+      type: object
+      properties:
+        callerPhone:
+          type: ["string", "null"]
+        callerName:
+          type: ["string", "null"]
+        transcript:
+          type: ["string", "null"]
+        intent:
+          type: ["string", "null"]
+        language:
+          type: string
+        durationSeconds:
+          type: ["integer", "null"]
+        outcome:
+          type: string
+          enum: [resolved, escalated, voicemail, transferred, follow_up_needed]
+        vapiCallId:
+          type: ["string", "null"]
+        clientId:
+          type: ["integer", "null"]
 
     Reminder:
       type: object

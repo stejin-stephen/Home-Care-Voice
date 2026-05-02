@@ -419,6 +419,36 @@ export interface CreateCallLogBody {
   clientId?: number | null;
 }
 
+export type UpdateCallLogBodyOutcome =
+  (typeof UpdateCallLogBodyOutcome)[keyof typeof UpdateCallLogBodyOutcome];
+
+export const UpdateCallLogBodyOutcome = {
+  resolved: "resolved",
+  escalated: "escalated",
+  voicemail: "voicemail",
+  transferred: "transferred",
+  follow_up_needed: "follow_up_needed",
+} as const;
+
+export interface UpdateCallLogBody {
+  /** @nullable */
+  callerPhone?: string | null;
+  /** @nullable */
+  callerName?: string | null;
+  /** @nullable */
+  transcript?: string | null;
+  /** @nullable */
+  intent?: string | null;
+  language?: string;
+  /** @nullable */
+  durationSeconds?: number | null;
+  outcome?: UpdateCallLogBodyOutcome;
+  /** @nullable */
+  vapiCallId?: string | null;
+  /** @nullable */
+  clientId?: number | null;
+}
+
 export type ReminderType = (typeof ReminderType)[keyof typeof ReminderType];
 
 export const ReminderType = {

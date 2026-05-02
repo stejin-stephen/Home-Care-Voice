@@ -35,6 +35,7 @@ import type {
   HealthStatus,
   Reminder,
   UpdateAppointmentBody,
+  UpdateCallLogBody,
   UpdateCaregiverBody,
   UpdateClientBody,
   UpdateEscalationBody,
@@ -1630,6 +1631,177 @@ export function useGetCallLog<
 }
 
 /**
+ * @summary Update a call log
+ */
+export const getUpdateCallLogUrl = (id: number) => {
+  return `/api/call-logs/${id}`;
+};
+
+export const updateCallLog = async (
+  id: number,
+  updateCallLogBody: UpdateCallLogBody,
+  options?: RequestInit,
+): Promise<CallLog> => {
+  return customFetch<CallLog>(getUpdateCallLogUrl(id), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(updateCallLogBody),
+  });
+};
+
+export const getUpdateCallLogMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateCallLog>>,
+    TError,
+    { id: number; data: BodyType<UpdateCallLogBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateCallLog>>,
+  TError,
+  { id: number; data: BodyType<UpdateCallLogBody> },
+  TContext
+> => {
+  const mutationKey = ["updateCallLog"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateCallLog>>,
+    { id: number; data: BodyType<UpdateCallLogBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateCallLog(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateCallLogMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateCallLog>>
+>;
+export type UpdateCallLogMutationBody = BodyType<UpdateCallLogBody>;
+export type UpdateCallLogMutationError = ErrorType<void>;
+
+/**
+ * @summary Update a call log
+ */
+export const useUpdateCallLog = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateCallLog>>,
+    TError,
+    { id: number; data: BodyType<UpdateCallLogBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateCallLog>>,
+  TError,
+  { id: number; data: BodyType<UpdateCallLogBody> },
+  TContext
+> => {
+  return useMutation(getUpdateCallLogMutationOptions(options));
+};
+
+/**
+ * @summary Delete a call log
+ */
+export const getDeleteCallLogUrl = (id: number) => {
+  return `/api/call-logs/${id}`;
+};
+
+export const deleteCallLog = async (
+  id: number,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteCallLogUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteCallLogMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteCallLog>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteCallLog>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const mutationKey = ["deleteCallLog"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteCallLog>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteCallLog(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteCallLogMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteCallLog>>
+>;
+
+export type DeleteCallLogMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete a call log
+ */
+export const useDeleteCallLog = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteCallLog>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteCallLog>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  return useMutation(getDeleteCallLogMutationOptions(options));
+};
+
+/**
  * @summary List all reminders
  */
 export const getGetRemindersUrl = () => {
@@ -2381,6 +2553,90 @@ export const useUpdateEscalation = <
   TContext
 > => {
   return useMutation(getUpdateEscalationMutationOptions(options));
+};
+
+/**
+ * @summary Delete an escalation
+ */
+export const getDeleteEscalationUrl = (id: number) => {
+  return `/api/escalations/${id}`;
+};
+
+export const deleteEscalation = async (
+  id: number,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteEscalationUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteEscalationMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteEscalation>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteEscalation>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const mutationKey = ["deleteEscalation"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteEscalation>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteEscalation(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteEscalationMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteEscalation>>
+>;
+
+export type DeleteEscalationMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete an escalation
+ */
+export const useDeleteEscalation = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteEscalation>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteEscalation>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  return useMutation(getDeleteEscalationMutationOptions(options));
 };
 
 /**

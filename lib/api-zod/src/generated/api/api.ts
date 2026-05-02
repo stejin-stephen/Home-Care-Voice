@@ -482,6 +482,72 @@ export const GetCallLogResponse = zod.object({
 });
 
 /**
+ * @summary Update a call log
+ */
+export const UpdateCallLogParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateCallLogBody = zod.object({
+  callerPhone: zod.string().nullish(),
+  callerName: zod.string().nullish(),
+  transcript: zod.string().nullish(),
+  intent: zod.string().nullish(),
+  language: zod.string().optional(),
+  durationSeconds: zod.number().nullish(),
+  outcome: zod
+    .enum([
+      "resolved",
+      "escalated",
+      "voicemail",
+      "transferred",
+      "follow_up_needed",
+    ])
+    .optional(),
+  vapiCallId: zod.string().nullish(),
+  clientId: zod.number().nullish(),
+});
+
+export const UpdateCallLogResponse = zod.object({
+  id: zod.number(),
+  callerPhone: zod.string().nullish(),
+  callerName: zod.string().nullish(),
+  transcript: zod.string().nullish(),
+  intent: zod
+    .union([
+      zod.literal("service_inquiry"),
+      zod.literal("appointment_request"),
+      zod.literal("medication_reminder"),
+      zod.literal("urgent_issue"),
+      zod.literal("general_inquiry"),
+      zod.literal("family_update"),
+      zod.literal(null),
+    ])
+    .nullish(),
+  language: zod.string(),
+  durationSeconds: zod.number().nullish(),
+  outcome: zod.enum([
+    "resolved",
+    "escalated",
+    "voicemail",
+    "transferred",
+    "follow_up_needed",
+  ]),
+  vapiCallId: zod.string().nullish(),
+  clientId: zod.number().nullish(),
+  clientName: zod.string().nullish(),
+  createdAt: zod.string(),
+  updatedAt: zod.string(),
+});
+
+/**
+ * @summary Delete a call log
+ */
+export const DeleteCallLogParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+/**
  * @summary List all reminders
  */
 export const GetRemindersResponseItem = zod.object({
@@ -672,6 +738,13 @@ export const UpdateEscalationResponse = zod.object({
   notes: zod.string().nullish(),
   createdAt: zod.string(),
   updatedAt: zod.string(),
+});
+
+/**
+ * @summary Delete an escalation
+ */
+export const DeleteEscalationParams = zod.object({
+  id: zod.coerce.number(),
 });
 
 /**

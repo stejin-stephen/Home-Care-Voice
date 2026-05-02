@@ -35,6 +35,84 @@ async function ensureConfig() {
   return created;
 }
 
+/**
+ * Sync the voice agent configuration to the live Vapi assistant.
+ * Requires VAPI_API_KEY env var. If the key is absent or the API call fails,
+ * we log a warning but do not block the local config save.
+ */
+async function syncToVapi(config: typeof voiceAgentConfigTable.$inferSelect): Promise<string | null> {
+  const apiKey = process.env.VAPI_API_KEY;
+  if (!apiKey) return null;
+
+  const languages = config.supportedLanguages
+    .split(",")
+    .map(l => l.trim())
+    .filter(Boolean);
+
+  const assistantPayload = {
+    name: config.assistantName,
+    model: {
+      provider: "openai",
+      model: "gpt-4o-mini",
+      systemPrompt: config.systemPrompt,
+    },
+    voice: {
+      provider: "11labs",
+      voiceId: "21m00Tcm4TlvDq8ikWAM",
+    },
+    maxDurationSeconds: config.maxCallDurationSeconds,
+    endCallFunctionEnabled: true,
+    endCallMessage: "Thank you for calling CareConnect. Have a wonderful day.",
+    transcriber: {
+      provider: "deepgram",
+      model: "nova-2",
+      language: "multi",
+    },
+    metadata: {
+      supportedLanguages: languages,
+      escalationPhone: config.escalationPhone,
+    },
+  };
+
+  try {
+    let response: Response;
+
+    if (config.vapiAssistantId) {
+      // Update existing assistant
+      response = await fetch(`https://api.vapi.ai/assistant/${config.vapiAssistantId}`, {
+        method: "PATCH",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(assistantPayload),
+      });
+    } else {
+      // Create new assistant
+      response = await fetch("https://api.vapi.ai/assistant", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(assistantPayload),
+      });
+    }
+
+    if (response.ok) {
+      const data = await response.json() as { id?: string };
+      return data.id ?? config.vapiAssistantId ?? null;
+    } else {
+      const err = await response.text();
+      console.warn(`[vapi] Failed to sync assistant: ${response.status} ${err}`);
+      return config.vapiAssistantId ?? null;
+    }
+  } catch (err) {
+    console.warn("[vapi] Error syncing to Vapi API:", err);
+    return config.vapiAssistantId ?? null;
+  }
+}
+
 router.get("/voice-agent/config", async (_req, res): Promise<void> => {
   try {
     const config = await ensureConfig();
@@ -49,11 +127,26 @@ router.patch("/voice-agent/config", async (req, res): Promise<void> => {
   if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
   try {
     const config = await ensureConfig();
+
+    // Save locally first
     const [updated] = await db
       .update(voiceAgentConfigTable)
       .set(parsed.data)
       .where(eq(voiceAgentConfigTable.id, config.id))
       .returning();
+
+    // Sync to Vapi API — updates the live assistant's prompt, voice, languages, etc.
+    const vapiId = await syncToVapi(updated);
+    if (vapiId && vapiId !== updated.vapiAssistantId) {
+      const [withVapiId] = await db
+        .update(voiceAgentConfigTable)
+        .set({ vapiAssistantId: vapiId })
+        .where(eq(voiceAgentConfigTable.id, config.id))
+        .returning();
+      res.json(formatConfig(withVapiId));
+      return;
+    }
+
     res.json(formatConfig(updated));
   } catch {
     res.status(500).json({ error: "Failed to update voice agent config" });
