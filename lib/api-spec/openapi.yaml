@@ -3,13 +3,29 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: CareConnect API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: clients
+    description: Client management
+  - name: caregivers
+    description: Caregiver management
+  - name: appointments
+    description: Appointment scheduling
+  - name: call-logs
+    description: AI voice call records
+  - name: reminders
+    description: Medication and visit reminders
+  - name: escalations
+    description: Urgent issue escalations
+  - name: dashboard
+    description: Dashboard summary and analytics
+  - name: voice-agent
+    description: Vapi voice agent configuration
 paths:
   /healthz:
     get:
@@ -24,6 +40,575 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /clients:
+    get:
+      operationId: getClients
+      tags: [clients]
+      summary: List all clients
+      responses:
+        "200":
+          description: List of clients
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Client"
+    post:
+      operationId: createClient
+      tags: [clients]
+      summary: Create a client
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateClientBody"
+      responses:
+        "201":
+          description: Client created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Client"
+
+  /clients/{id}:
+    get:
+      operationId: getClient
+      tags: [clients]
+      summary: Get a client by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Client
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Client"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateClient
+      tags: [clients]
+      summary: Update a client
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateClientBody"
+      responses:
+        "200":
+          description: Updated client
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Client"
+    delete:
+      operationId: deleteClient
+      tags: [clients]
+      summary: Delete a client
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /caregivers:
+    get:
+      operationId: getCaregivers
+      tags: [caregivers]
+      summary: List all caregivers
+      responses:
+        "200":
+          description: List of caregivers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Caregiver"
+    post:
+      operationId: createCaregiver
+      tags: [caregivers]
+      summary: Create a caregiver
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCaregiverBody"
+      responses:
+        "201":
+          description: Caregiver created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Caregiver"
+
+  /caregivers/{id}:
+    get:
+      operationId: getCaregiver
+      tags: [caregivers]
+      summary: Get a caregiver by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Caregiver
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Caregiver"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateCaregiver
+      tags: [caregivers]
+      summary: Update a caregiver
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCaregiverBody"
+      responses:
+        "200":
+          description: Updated caregiver
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Caregiver"
+    delete:
+      operationId: deleteCaregiver
+      tags: [caregivers]
+      summary: Delete a caregiver
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /appointments:
+    get:
+      operationId: getAppointments
+      tags: [appointments]
+      summary: List all appointments
+      responses:
+        "200":
+          description: List of appointments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Appointment"
+    post:
+      operationId: createAppointment
+      tags: [appointments]
+      summary: Create an appointment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAppointmentBody"
+      responses:
+        "201":
+          description: Appointment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointment"
+
+  /appointments/{id}:
+    get:
+      operationId: getAppointment
+      tags: [appointments]
+      summary: Get an appointment by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Appointment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointment"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateAppointment
+      tags: [appointments]
+      summary: Update an appointment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAppointmentBody"
+      responses:
+        "200":
+          description: Updated appointment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointment"
+    delete:
+      operationId: deleteAppointment
+      tags: [appointments]
+      summary: Delete an appointment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /call-logs:
+    get:
+      operationId: getCallLogs
+      tags: [call-logs]
+      summary: List all call logs
+      responses:
+        "200":
+          description: List of call logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CallLog"
+    post:
+      operationId: createCallLog
+      tags: [call-logs]
+      summary: Create a call log record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCallLogBody"
+      responses:
+        "201":
+          description: Call log created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CallLog"
+
+  /call-logs/{id}:
+    get:
+      operationId: getCallLog
+      tags: [call-logs]
+      summary: Get a call log by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Call log
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CallLog"
+        "404":
+          description: Not found
+
+  /reminders:
+    get:
+      operationId: getReminders
+      tags: [reminders]
+      summary: List all reminders
+      responses:
+        "200":
+          description: List of reminders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Reminder"
+    post:
+      operationId: createReminder
+      tags: [reminders]
+      summary: Create a reminder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReminderBody"
+      responses:
+        "201":
+          description: Reminder created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reminder"
+
+  /reminders/{id}:
+    get:
+      operationId: getReminder
+      tags: [reminders]
+      summary: Get a reminder by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Reminder
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reminder"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateReminder
+      tags: [reminders]
+      summary: Update a reminder
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateReminderBody"
+      responses:
+        "200":
+          description: Updated reminder
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reminder"
+    delete:
+      operationId: deleteReminder
+      tags: [reminders]
+      summary: Delete a reminder
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /escalations:
+    get:
+      operationId: getEscalations
+      tags: [escalations]
+      summary: List all escalations
+      responses:
+        "200":
+          description: List of escalations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Escalation"
+    post:
+      operationId: createEscalation
+      tags: [escalations]
+      summary: Create an escalation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEscalationBody"
+      responses:
+        "201":
+          description: Escalation created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Escalation"
+
+  /escalations/{id}:
+    get:
+      operationId: getEscalation
+      tags: [escalations]
+      summary: Get an escalation by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Escalation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Escalation"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateEscalation
+      tags: [escalations]
+      summary: Update an escalation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateEscalationBody"
+      responses:
+        "200":
+          description: Updated escalation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Escalation"
+
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Get dashboard summary metrics
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  /dashboard/activity:
+    get:
+      operationId: getDashboardActivity
+      tags: [dashboard]
+      summary: Get recent activity feed
+      responses:
+        "200":
+          description: Recent activity items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityItem"
+
+  /voice-agent/config:
+    get:
+      operationId: getVoiceAgentConfig
+      tags: [voice-agent]
+      summary: Get voice agent configuration
+      responses:
+        "200":
+          description: Voice agent configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VoiceAgentConfig"
+    patch:
+      operationId: updateVoiceAgentConfig
+      tags: [voice-agent]
+      summary: Update voice agent configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateVoiceAgentConfigBody"
+      responses:
+        "200":
+          description: Updated configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VoiceAgentConfig"
+
+  /vapi/webhook:
+    post:
+      operationId: handleVapiWebhook
+      tags: [voice-agent]
+      summary: Receive Vapi call event webhooks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: Webhook received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  received:
+                    type: boolean
+                required:
+                  - received
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +619,612 @@ components:
       required:
         - status
 
+    Client:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        dateOfBirth:
+          type: ["string", "null"]
+        address:
+          type: string
+        phone:
+          type: string
+        preferredLanguage:
+          type: string
+        carePlan:
+          type: ["string", "null"]
+        emergencyContact:
+          type: ["string", "null"]
+        emergencyPhone:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [active, inactive, on_hold]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - name
+        - address
+        - phone
+        - preferredLanguage
+        - status
+        - createdAt
+        - updatedAt
+
+    CreateClientBody:
+      type: object
+      properties:
+        name:
+          type: string
+        dateOfBirth:
+          type: ["string", "null"]
+        address:
+          type: string
+        phone:
+          type: string
+        preferredLanguage:
+          type: string
+        carePlan:
+          type: ["string", "null"]
+        emergencyContact:
+          type: ["string", "null"]
+        emergencyPhone:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [active, inactive, on_hold]
+        notes:
+          type: ["string", "null"]
+      required:
+        - name
+        - address
+        - phone
+
+    UpdateClientBody:
+      type: object
+      properties:
+        name:
+          type: string
+        dateOfBirth:
+          type: ["string", "null"]
+        address:
+          type: string
+        phone:
+          type: string
+        preferredLanguage:
+          type: string
+        carePlan:
+          type: ["string", "null"]
+        emergencyContact:
+          type: ["string", "null"]
+        emergencyPhone:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [active, inactive, on_hold]
+        notes:
+          type: ["string", "null"]
+
+    Caregiver:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: ["string", "null"]
+        role:
+          type: string
+          enum: [caregiver, nurse, coordinator, supervisor]
+        availability:
+          type: string
+          enum: [full_time, part_time, on_call]
+        languages:
+          type: string
+        certifications:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [active, inactive, on_leave]
+        hireDate:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - name
+        - phone
+        - role
+        - availability
+        - languages
+        - status
+        - createdAt
+        - updatedAt
+
+    CreateCaregiverBody:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: ["string", "null"]
+        role:
+          type: string
+          enum: [caregiver, nurse, coordinator, supervisor]
+        availability:
+          type: string
+          enum: [full_time, part_time, on_call]
+        languages:
+          type: string
+        certifications:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [active, inactive, on_leave]
+        hireDate:
+          type: ["string", "null"]
+      required:
+        - name
+        - phone
+        - role
+        - availability
+
+    UpdateCaregiverBody:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: ["string", "null"]
+        role:
+          type: string
+          enum: [caregiver, nurse, coordinator, supervisor]
+        availability:
+          type: string
+          enum: [full_time, part_time, on_call]
+        languages:
+          type: string
+        certifications:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [active, inactive, on_leave]
+        hireDate:
+          type: ["string", "null"]
+
+    Appointment:
+      type: object
+      properties:
+        id:
+          type: integer
+        clientId:
+          type: integer
+        caregiverId:
+          type: ["integer", "null"]
+        scheduledAt:
+          type: string
+        durationMinutes:
+          type: integer
+        type:
+          type: string
+          enum: [daily_assistance, companionship, transportation, telehealth, medication_management, personal_care]
+        status:
+          type: string
+          enum: [scheduled, confirmed, in_progress, completed, cancelled, no_show]
+        notes:
+          type: ["string", "null"]
+        clientName:
+          type: ["string", "null"]
+        caregiverName:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - clientId
+        - scheduledAt
+        - durationMinutes
+        - type
+        - status
+        - createdAt
+        - updatedAt
+
+    CreateAppointmentBody:
+      type: object
+      properties:
+        clientId:
+          type: integer
+        caregiverId:
+          type: ["integer", "null"]
+        scheduledAt:
+          type: string
+        durationMinutes:
+          type: integer
+        type:
+          type: string
+          enum: [daily_assistance, companionship, transportation, telehealth, medication_management, personal_care]
+        status:
+          type: string
+          enum: [scheduled, confirmed, in_progress, completed, cancelled, no_show]
+        notes:
+          type: ["string", "null"]
+      required:
+        - clientId
+        - scheduledAt
+        - durationMinutes
+        - type
+
+    UpdateAppointmentBody:
+      type: object
+      properties:
+        clientId:
+          type: integer
+        caregiverId:
+          type: ["integer", "null"]
+        scheduledAt:
+          type: string
+        durationMinutes:
+          type: integer
+        type:
+          type: string
+          enum: [daily_assistance, companionship, transportation, telehealth, medication_management, personal_care]
+        status:
+          type: string
+          enum: [scheduled, confirmed, in_progress, completed, cancelled, no_show]
+        notes:
+          type: ["string", "null"]
+
+    CallLog:
+      type: object
+      properties:
+        id:
+          type: integer
+        callerPhone:
+          type: ["string", "null"]
+        callerName:
+          type: ["string", "null"]
+        transcript:
+          type: ["string", "null"]
+        intent:
+          type: ["string", "null"]
+          enum: [service_inquiry, appointment_request, medication_reminder, urgent_issue, general_inquiry, family_update, null]
+        language:
+          type: string
+        durationSeconds:
+          type: ["integer", "null"]
+        outcome:
+          type: string
+          enum: [resolved, escalated, voicemail, transferred, follow_up_needed]
+        vapiCallId:
+          type: ["string", "null"]
+        clientId:
+          type: ["integer", "null"]
+        clientName:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - language
+        - outcome
+        - createdAt
+        - updatedAt
+
+    CreateCallLogBody:
+      type: object
+      properties:
+        callerPhone:
+          type: ["string", "null"]
+        callerName:
+          type: ["string", "null"]
+        transcript:
+          type: ["string", "null"]
+        intent:
+          type: ["string", "null"]
+        language:
+          type: string
+        durationSeconds:
+          type: ["integer", "null"]
+        outcome:
+          type: string
+          enum: [resolved, escalated, voicemail, transferred, follow_up_needed]
+        vapiCallId:
+          type: ["string", "null"]
+        clientId:
+          type: ["integer", "null"]
+      required:
+        - outcome
+
+    Reminder:
+      type: object
+      properties:
+        id:
+          type: integer
+        clientId:
+          type: integer
+        clientName:
+          type: ["string", "null"]
+        type:
+          type: string
+          enum: [medication, visit, appointment, follow_up, wellness_check]
+        message:
+          type: string
+        scheduledAt:
+          type: string
+        status:
+          type: string
+          enum: [pending, sent, acknowledged, failed, cancelled]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - clientId
+        - type
+        - message
+        - scheduledAt
+        - status
+        - createdAt
+        - updatedAt
+
+    CreateReminderBody:
+      type: object
+      properties:
+        clientId:
+          type: integer
+        type:
+          type: string
+          enum: [medication, visit, appointment, follow_up, wellness_check]
+        message:
+          type: string
+        scheduledAt:
+          type: string
+        status:
+          type: string
+          enum: [pending, sent, acknowledged, failed, cancelled]
+      required:
+        - clientId
+        - type
+        - message
+        - scheduledAt
+
+    UpdateReminderBody:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [medication, visit, appointment, follow_up, wellness_check]
+        message:
+          type: string
+        scheduledAt:
+          type: string
+        status:
+          type: string
+          enum: [pending, sent, acknowledged, failed, cancelled]
+
+    Escalation:
+      type: object
+      properties:
+        id:
+          type: integer
+        callLogId:
+          type: ["integer", "null"]
+        clientId:
+          type: ["integer", "null"]
+        clientName:
+          type: ["string", "null"]
+        assignedTo:
+          type: ["string", "null"]
+        priority:
+          type: string
+          enum: [low, medium, high, critical]
+        reason:
+          type: string
+        resolved:
+          type: boolean
+        resolvedAt:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - priority
+        - reason
+        - resolved
+        - createdAt
+        - updatedAt
+
+    CreateEscalationBody:
+      type: object
+      properties:
+        callLogId:
+          type: ["integer", "null"]
+        clientId:
+          type: ["integer", "null"]
+        assignedTo:
+          type: ["string", "null"]
+        priority:
+          type: string
+          enum: [low, medium, high, critical]
+        reason:
+          type: string
+        notes:
+          type: ["string", "null"]
+      required:
+        - priority
+        - reason
+
+    UpdateEscalationBody:
+      type: object
+      properties:
+        assignedTo:
+          type: ["string", "null"]
+        priority:
+          type: string
+          enum: [low, medium, high, critical]
+        reason:
+          type: string
+        resolved:
+          type: boolean
+        resolvedAt:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+
+    DashboardSummary:
+      type: object
+      properties:
+        callsToday:
+          type: integer
+        callsThisWeek:
+          type: integer
+        activeClients:
+          type: integer
+        activeCaregivers:
+          type: integer
+        appointmentsToday:
+          type: integer
+        appointmentsThisWeek:
+          type: integer
+        pendingReminders:
+          type: integer
+        openEscalations:
+          type: integer
+        criticalEscalations:
+          type: integer
+        resolvedEscalationsToday:
+          type: integer
+        avgCallDurationSeconds:
+          type: ["integer", "null"]
+        callsByOutcome:
+          type: object
+          additionalProperties:
+            type: integer
+        callsByLanguage:
+          type: object
+          additionalProperties:
+            type: integer
+        callsByIntent:
+          type: object
+          additionalProperties:
+            type: integer
+      required:
+        - callsToday
+        - callsThisWeek
+        - activeClients
+        - activeCaregivers
+        - appointmentsToday
+        - appointmentsThisWeek
+        - pendingReminders
+        - openEscalations
+        - criticalEscalations
+        - resolvedEscalationsToday
+        - callsByOutcome
+        - callsByLanguage
+        - callsByIntent
+
+    ActivityItem:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [call, appointment, reminder, escalation]
+        title:
+          type: string
+        description:
+          type: string
+        timestamp:
+          type: string
+        priority:
+          type: ["string", "null"]
+          enum: [low, medium, high, critical, null]
+        status:
+          type: ["string", "null"]
+        clientName:
+          type: ["string", "null"]
+      required:
+        - id
+        - type
+        - title
+        - description
+        - timestamp
+
+    VoiceAgentConfig:
+      type: object
+      properties:
+        id:
+          type: integer
+        assistantName:
+          type: string
+        systemPrompt:
+          type: string
+        supportedLanguages:
+          type: string
+        escalationPhone:
+          type: string
+        vapiAssistantId:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+        maxCallDurationSeconds:
+          type: integer
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - assistantName
+        - systemPrompt
+        - supportedLanguages
+        - escalationPhone
+        - isActive
+        - maxCallDurationSeconds
+        - createdAt
+        - updatedAt
+
+    UpdateVoiceAgentConfigBody:
+      type: object
+      properties:
+        assistantName:
+          type: string
+        systemPrompt:
+          type: string
+        supportedLanguages:
+          type: string
+        escalationPhone:
+          type: string
+        vapiAssistantId:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+        maxCallDurationSeconds:
+          type: integer

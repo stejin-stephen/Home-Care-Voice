@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "CareConnect Dashboard"
+version = "1.0.0"
+id = "artifacts/care-dashboard"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21243
+
+[services.development]
+run = "pnpm --filter @workspace/care-dashboard run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/care-dashboard", "run", "build" ]
+publicDir = "artifacts/care-dashboard/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21243"
+BASE_PATH = "/"
