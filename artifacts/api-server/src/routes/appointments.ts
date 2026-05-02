@@ -14,9 +14,10 @@ const router = Router();
 
 router.get("/appointments", async (req, res): Promise<void> => {
   try {
-    const { status, type, dateFrom, dateTo } = req.query as Record<string, string | undefined>;
+    const { status, type, dateFrom, dateTo, clientId } = req.query as Record<string, string | undefined>;
 
     const conditions = [];
+    if (clientId) conditions.push(eq(appointmentsTable.clientId, parseInt(clientId, 10)));
     if (status) conditions.push(eq(appointmentsTable.status, status));
     if (type) conditions.push(ilike(appointmentsTable.type, `%${type}%`));
     if (dateFrom) conditions.push(gte(appointmentsTable.scheduledAt, new Date(dateFrom)));

@@ -4,6 +4,7 @@ import { customFetch } from "./custom-fetch";
 import type { Appointment, CallLog, Reminder, Escalation } from "./generated/api.schemas";
 
 export interface AppointmentFilters {
+  clientId?: string;
   status?: string;
   type?: string;
   dateFrom?: string;
