@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { escalationsTable, clientsTable } from "@workspace/db";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, and } from "drizzle-orm";
 import {
   CreateEscalationBody,
   UpdateEscalationBody,
@@ -11,12 +11,21 @@ import {
 
 const router = Router();
 
-router.get("/escalations", async (_req, res): Promise<void> => {
+router.get("/escalations", async (req, res): Promise<void> => {
   try {
+    const { priority, resolved } = req.query as Record<string, string | undefined>;
+
+    const conditions = [];
+    if (priority) conditions.push(eq(escalationsTable.priority, priority));
+    if (resolved !== undefined && resolved !== "") {
+      conditions.push(eq(escalationsTable.resolved, resolved === "true"));
+    }
+
     const rows = await db
       .select({ escalation: escalationsTable, clientName: clientsTable.name })
       .from(escalationsTable)
       .leftJoin(clientsTable, eq(escalationsTable.clientId, clientsTable.id))
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(sql`${escalationsTable.createdAt} DESC`);
     res.json(rows.map(r => formatEscalation(r.escalation, r.clientName)));
   } catch {

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { appointmentsTable, clientsTable, caregiversTable } from "@workspace/db";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, and, gte, lte, ilike } from "drizzle-orm";
 import {
   CreateAppointmentBody,
   UpdateAppointmentBody,
@@ -12,8 +12,16 @@ import {
 
 const router = Router();
 
-router.get("/appointments", async (_req, res): Promise<void> => {
+router.get("/appointments", async (req, res): Promise<void> => {
   try {
+    const { status, type, dateFrom, dateTo } = req.query as Record<string, string | undefined>;
+
+    const conditions = [];
+    if (status) conditions.push(eq(appointmentsTable.status, status));
+    if (type) conditions.push(ilike(appointmentsTable.type, `%${type}%`));
+    if (dateFrom) conditions.push(gte(appointmentsTable.scheduledAt, new Date(dateFrom)));
+    if (dateTo) conditions.push(lte(appointmentsTable.scheduledAt, new Date(dateTo)));
+
     const rows = await db
       .select({
         appointment: appointmentsTable,
@@ -23,6 +31,7 @@ router.get("/appointments", async (_req, res): Promise<void> => {
       .from(appointmentsTable)
       .leftJoin(clientsTable, eq(appointmentsTable.clientId, clientsTable.id))
       .leftJoin(caregiversTable, eq(appointmentsTable.caregiverId, caregiversTable.id))
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(sql`${appointmentsTable.scheduledAt} DESC`);
 
     res.json(rows.map(r => formatAppointment(r.appointment, r.clientName, r.caregiverName)));

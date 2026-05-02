@@ -1,9 +1,9 @@
-import { useGetReminders, getGetRemindersQueryKey, useUpdateReminder, useCreateReminder, useGetClients } from "@workspace/api-client-react";
-import { useState } from "react";
+import { useGetRemindersFiltered, getGetRemindersQueryKey, useUpdateReminder, useCreateReminder, useGetClients } from "@workspace/api-client-react";
+import { useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Bell, Plus, Calendar as CalendarIcon, CheckCircle2, XCircle } from "lucide-react";
+import { Bell, Plus, Calendar as CalendarIcon, CheckCircle2, XCircle, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
@@ -24,13 +24,22 @@ const createSchema = z.object({
 });
 
 export default function Reminders() {
-  const { data: reminders, isLoading } = useGetReminders();
   const { data: clients } = useGetClients();
   const updateReminder = useUpdateReminder();
   const createReminder = useCreateReminder();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
+
+  const [filterType, setFilterType] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+
+  const filters = useMemo(() => ({
+    type: filterType || undefined,
+    status: filterStatus || undefined,
+  }), [filterType, filterStatus]);
+
+  const { data: reminders, isLoading } = useGetRemindersFiltered(filters);
 
   const form = useForm<z.infer<typeof createSchema>>({
     resolver: zodResolver(createSchema),
@@ -61,6 +70,13 @@ export default function Reminders() {
     });
   };
 
+  const hasFilters = !!(filterType || filterStatus);
+
+  const clearFilters = () => {
+    setFilterType("");
+    setFilterStatus("");
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -68,7 +84,7 @@ export default function Reminders() {
           <h1 className="text-3xl font-bold text-foreground">Reminders</h1>
           <p className="text-muted-foreground mt-1">Automated messages and alerts for clients.</p>
         </div>
-        
+
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button>
@@ -162,6 +178,52 @@ export default function Reminders() {
         </Dialog>
       </div>
 
+      <div className="flex flex-wrap gap-3 items-end p-4 bg-muted/40 rounded-xl border">
+        <div className="flex flex-col gap-1 min-w-[160px]">
+          <label className="text-xs text-muted-foreground font-medium">Type</label>
+          <Select value={filterType || "all"} onValueChange={v => setFilterType(v === "all" ? "" : v)}>
+            <SelectTrigger className="h-9 bg-background">
+              <SelectValue placeholder="All types" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All types</SelectItem>
+              <SelectItem value="medication">Medication</SelectItem>
+              <SelectItem value="visit">Visit</SelectItem>
+              <SelectItem value="appointment">Appointment</SelectItem>
+              <SelectItem value="wellness_check">Wellness Check</SelectItem>
+              <SelectItem value="follow_up">Follow Up</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex flex-col gap-1 min-w-[160px]">
+          <label className="text-xs text-muted-foreground font-medium">Status</label>
+          <Select value={filterStatus || "all"} onValueChange={v => setFilterStatus(v === "all" ? "" : v)}>
+            <SelectTrigger className="h-9 bg-background">
+              <SelectValue placeholder="All statuses" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="sent">Sent</SelectItem>
+              <SelectItem value="acknowledged">Acknowledged</SelectItem>
+              <SelectItem value="failed">Failed</SelectItem>
+              <SelectItem value="cancelled">Cancelled</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {hasFilters && (
+          <Button variant="ghost" size="sm" onClick={clearFilters} className="h-9 gap-1 text-muted-foreground">
+            <X className="h-4 w-4" /> Clear
+          </Button>
+        )}
+
+        <span className="ml-auto text-xs text-muted-foreground self-end pb-1">
+          {reminders ? `${reminders.length} result${reminders.length !== 1 ? "s" : ""}` : ""}
+        </span>
+      </div>
+
       {isLoading ? (
         <div className="space-y-4">
           {[...Array(4)].map((_, i) => (
@@ -183,20 +245,20 @@ export default function Reminders() {
                     {format(new Date(rem.scheduledAt), "MMM d, h:mm a")}
                   </div>
                 </div>
-                
+
                 <p className="font-medium text-sm mb-1">{rem.message}</p>
                 <p className="text-xs text-muted-foreground mb-4">To: {rem.clientName || 'Unknown Client'}</p>
-                
+
                 <div className="flex items-center justify-between mt-4 pt-3 border-t">
                   <span className={`text-xs font-medium flex items-center gap-1 capitalize
-                    ${rem.status === 'pending' ? 'text-primary' : 
-                      rem.status === 'failed' || rem.status === 'cancelled' ? 'text-destructive' : 
+                    ${rem.status === 'pending' ? 'text-primary' :
+                      rem.status === 'failed' || rem.status === 'cancelled' ? 'text-destructive' :
                       'text-green-600'}`}>
                     {rem.status === 'acknowledged' ? <CheckCircle2 className="h-3 w-3" /> : null}
                     {rem.status === 'failed' ? <XCircle className="h-3 w-3" /> : null}
                     {rem.status}
                   </span>
-                  
+
                   {rem.status === 'pending' && (
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => handleStatusChange(rem.id, 'cancelled')}>
@@ -215,9 +277,11 @@ export default function Reminders() {
       ) : (
         <div className="text-center py-12 border rounded-xl bg-card">
           <Bell className="h-12 w-12 mx-auto text-muted-foreground mb-4 opacity-50" />
-          <h3 className="text-lg font-medium text-foreground mb-1">No reminders</h3>
+          <h3 className="text-lg font-medium text-foreground mb-1">
+            {hasFilters ? "No matching reminders" : "No reminders"}
+          </h3>
           <p className="text-muted-foreground">
-            There are no active reminders.
+            {hasFilters ? "Try adjusting your filters." : "There are no active reminders."}
           </p>
         </div>
       )}

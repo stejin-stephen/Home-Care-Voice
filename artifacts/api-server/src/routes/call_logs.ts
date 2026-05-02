@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { callLogsTable, clientsTable } from "@workspace/db";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, and, ilike } from "drizzle-orm";
 import { CreateCallLogBody, GetCallLogParams } from "@workspace/api-zod";
 import { z } from "zod";
 
@@ -19,12 +19,20 @@ const UpdateCallLogBody = z.object({
 
 const router = Router();
 
-router.get("/call-logs", async (_req, res): Promise<void> => {
+router.get("/call-logs", async (req, res): Promise<void> => {
   try {
+    const { outcome, intent, language } = req.query as Record<string, string | undefined>;
+
+    const conditions = [];
+    if (outcome) conditions.push(eq(callLogsTable.outcome, outcome));
+    if (intent) conditions.push(ilike(callLogsTable.intent, `%${intent}%`));
+    if (language) conditions.push(ilike(callLogsTable.language, `%${language}%`));
+
     const rows = await db
       .select({ callLog: callLogsTable, clientName: clientsTable.name })
       .from(callLogsTable)
       .leftJoin(clientsTable, eq(callLogsTable.clientId, clientsTable.id))
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(sql`${callLogsTable.createdAt} DESC`);
     res.json(rows.map(r => formatCallLog(r.callLog, r.clientName)));
   } catch {

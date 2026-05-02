@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { remindersTable, clientsTable } from "@workspace/db";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, and } from "drizzle-orm";
 import {
   CreateReminderBody,
   UpdateReminderBody,
@@ -12,12 +12,19 @@ import {
 
 const router = Router();
 
-router.get("/reminders", async (_req, res): Promise<void> => {
+router.get("/reminders", async (req, res): Promise<void> => {
   try {
+    const { type, status } = req.query as Record<string, string | undefined>;
+
+    const conditions = [];
+    if (type) conditions.push(eq(remindersTable.type, type));
+    if (status) conditions.push(eq(remindersTable.status, status));
+
     const rows = await db
       .select({ reminder: remindersTable, clientName: clientsTable.name })
       .from(remindersTable)
       .leftJoin(clientsTable, eq(remindersTable.clientId, clientsTable.id))
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(sql`${remindersTable.scheduledAt} ASC`);
     res.json(rows.map(r => formatReminder(r.reminder, r.clientName)));
   } catch {
