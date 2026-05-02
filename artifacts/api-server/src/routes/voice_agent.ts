@@ -154,6 +154,15 @@ router.patch("/voice-agent/config", async (req, res): Promise<void> => {
 });
 
 router.post("/vapi/webhook", async (req, res): Promise<void> => {
+  const secret = process.env.VAPI_WEBHOOK_SECRET;
+  if (secret) {
+    const provided = req.headers["x-vapi-secret"] ?? req.headers["x-webhook-secret"];
+    if (provided !== secret) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+  }
+
   try {
     const event = req.body as Record<string, unknown>;
     const message = event?.message as Record<string, unknown> | undefined;
