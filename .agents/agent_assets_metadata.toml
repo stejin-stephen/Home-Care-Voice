@@ -1,0 +1,14 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "Bar42B3-CQ2qDLHUJ0aKP"
+uri = "file://artifacts/landing/public/hero.png"
+type = "image"
+title = "Care coordinator and client"
+
+[[generated]]
+id = "Dfnp1mGo8FwPTL0k010r5"
+uri = "file://artifacts/landing/public/ai-wave.png"
+type = "image"
+title = "AI voice wave illustration"
