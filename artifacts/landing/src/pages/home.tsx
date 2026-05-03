@@ -433,8 +433,8 @@ export default function Home() {
             <div className="flex flex-col gap-2 text-sm">
               <span className="font-semibold text-foreground mb-1">Company</span>
               <a href="mailto:hello@careconnect.ai" className="text-foreground/60 hover:text-primary transition-colors">Contact</a>
-              <a href="#" className="text-foreground/60 hover:text-primary transition-colors">Privacy Policy</a>
-              <a href="#" className="text-foreground/60 hover:text-primary transition-colors">Terms of Service</a>
+              <span className="text-foreground/40">Privacy Policy</span>
+              <span className="text-foreground/40">Terms of Service</span>
             </div>
           </div>
           <div className="border-t border-border pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-foreground/50 text-sm">
