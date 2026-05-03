@@ -8,6 +8,7 @@ import remindersRouter from "./reminders";
 import escalationsRouter from "./escalations";
 import dashboardRouter from "./dashboard";
 import voiceAgentRouter from "./voice_agent";
+import leadsRouter from "./leads";
 
 const router: IRouter = Router();
 
@@ -20,5 +21,6 @@ router.use(remindersRouter);
 router.use(escalationsRouter);
 router.use(dashboardRouter);
 router.use(voiceAgentRouter);
+router.use(leadsRouter);
 
 export default router;

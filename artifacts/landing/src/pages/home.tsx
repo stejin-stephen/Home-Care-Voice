@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   ArrowRight,
   Phone,
@@ -15,9 +15,65 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+
+type FormState = "idle" | "submitting" | "success" | "error";
 
 export default function Home() {
   const base = import.meta.env.BASE_URL;
+
+  const [form, setForm] = useState({
+    name: "",
+    agencyName: "",
+    phone: "",
+    email: "",
+    message: "",
+  });
+  const [formState, setFormState] = useState<FormState>("idle");
+  const [errors, setErrors] = useState<Partial<typeof form>>({});
+
+  function validate() {
+    const next: Partial<typeof form> = {};
+    if (!form.name.trim()) next.name = "Name is required";
+    if (!form.agencyName.trim()) next.agencyName = "Agency name is required";
+    if (!form.phone.trim()) next.phone = "Phone number is required";
+    if (!form.email.trim()) next.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+      next.email = "Enter a valid email address";
+    return next;
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const errs = validate();
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) return;
+
+    setFormState("submitting");
+    try {
+      const res = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error("Server error");
+      setFormState("success");
+    } catch {
+      setFormState("error");
+    }
+  }
+
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    if (errors[name as keyof typeof errors]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+  }
 
   const features = [
     {
@@ -111,7 +167,7 @@ export default function Home() {
             </a>
           </div>
           <Button asChild className="rounded-full shadow-sm">
-            <a href="mailto:hello@careconnect.ai">Book a Demo</a>
+            <a href="#request-demo">Book a Demo</a>
           </Button>
         </div>
       </nav>
@@ -152,7 +208,7 @@ export default function Home() {
               className="rounded-full h-14 px-8 text-base shadow-lg hover:shadow-xl transition-all"
               asChild
             >
-              <a href="mailto:hello@careconnect.ai">
+              <a href="#request-demo">
                 Get Started <ArrowRight className="ml-2 w-5 h-5" />
               </a>
             </Button>
@@ -162,7 +218,7 @@ export default function Home() {
               className="rounded-full h-14 px-8 text-base border-border/80 bg-background/50 hover:bg-accent/50 transition-all"
               asChild
             >
-              <a href="mailto:hello@careconnect.ai">Book a Demo</a>
+              <a href="#request-demo">Book a Demo</a>
             </Button>
           </div>
 
@@ -372,6 +428,153 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Request a Demo Form */}
+      <section id="request-demo" className="py-24 bg-accent/20">
+        <div className="container mx-auto px-4 max-w-2xl">
+          <div className="text-center mb-12">
+            <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">
+              Get in touch
+            </p>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Request a demo
+            </h2>
+            <p className="text-lg text-foreground/70">
+              See Clara in action. Fill out the form below and we'll reach out
+              within one business day to set up a live walkthrough.
+            </p>
+          </div>
+
+          {formState === "success" ? (
+            <div className="bg-background rounded-3xl border border-border shadow-sm p-10 text-center">
+              <div className="w-16 h-16 rounded-full bg-accent flex items-center justify-center mx-auto mb-6">
+                <CheckCircle2 className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="text-2xl font-bold text-foreground mb-3">
+                Request received!
+              </h3>
+              <p className="text-foreground/70 max-w-sm mx-auto">
+                Thank you for your interest. We'll be in touch within one
+                business day to schedule your demo.
+              </p>
+            </div>
+          ) : (
+            <form
+              onSubmit={handleSubmit}
+              noValidate
+              className="bg-background rounded-3xl border border-border shadow-sm p-8 md:p-10 space-y-6"
+            >
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Your name</Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    placeholder="Jane Smith"
+                    value={form.name}
+                    onChange={handleChange}
+                    className={errors.name ? "border-destructive" : ""}
+                  />
+                  {errors.name && (
+                    <p className="text-sm text-destructive">{errors.name}</p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="agencyName">Agency name</Label>
+                  <Input
+                    id="agencyName"
+                    name="agencyName"
+                    placeholder="Sunrise Home Care"
+                    value={form.agencyName}
+                    onChange={handleChange}
+                    className={errors.agencyName ? "border-destructive" : ""}
+                  />
+                  {errors.agencyName && (
+                    <p className="text-sm text-destructive">{errors.agencyName}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email address</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="jane@sunrisecare.com"
+                    value={form.email}
+                    onChange={handleChange}
+                    className={errors.email ? "border-destructive" : ""}
+                  />
+                  {errors.email && (
+                    <p className="text-sm text-destructive">{errors.email}</p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone number</Label>
+                  <Input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    placeholder="(555) 000-0000"
+                    value={form.phone}
+                    onChange={handleChange}
+                    className={errors.phone ? "border-destructive" : ""}
+                  />
+                  {errors.phone && (
+                    <p className="text-sm text-destructive">{errors.phone}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="message">
+                  Anything you'd like us to know?{" "}
+                  <span className="text-foreground/40 font-normal">(optional)</span>
+                </Label>
+                <Textarea
+                  id="message"
+                  name="message"
+                  placeholder="Tell us about your agency, how many caregivers you have, or what challenges you're facing..."
+                  rows={4}
+                  value={form.message}
+                  onChange={handleChange}
+                  className="resize-none"
+                />
+              </div>
+
+              {formState === "error" && (
+                <p className="text-sm text-destructive text-center">
+                  Something went wrong. Please try again or email us at{" "}
+                  <a
+                    href="mailto:hello@careconnect.ai"
+                    className="underline"
+                  >
+                    hello@careconnect.ai
+                  </a>
+                  .
+                </p>
+              )}
+
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full rounded-full h-14 text-base shadow-md"
+                disabled={formState === "submitting"}
+              >
+                {formState === "submitting" ? (
+                  "Sending…"
+                ) : (
+                  <>
+                    Request a Demo <ArrowRight className="ml-2 w-5 h-5" />
+                  </>
+                )}
+              </Button>
+            </form>
+          )}
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-32 bg-primary relative overflow-hidden text-center">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1),transparent_60%)]" />
@@ -392,7 +595,7 @@ export default function Home() {
               className="rounded-full h-14 px-10 text-lg bg-background text-primary hover:bg-background/90 shadow-xl"
               asChild
             >
-              <a href="mailto:hello@careconnect.ai">
+              <a href="#request-demo">
                 Book a Demo <ArrowRight className="ml-2 w-5 h-5" />
               </a>
             </Button>
@@ -402,7 +605,7 @@ export default function Home() {
               className="rounded-full h-14 px-10 text-lg text-primary-foreground hover:bg-primary-foreground/10"
               asChild
             >
-              <a href="mailto:hello@careconnect.ai">Get Started Today</a>
+              <a href="#request-demo">Get Started Today</a>
             </Button>
           </div>
         </div>
@@ -428,11 +631,11 @@ export default function Home() {
               <span className="font-semibold text-foreground mb-1">Product</span>
               <a href="#features" className="text-foreground/60 hover:text-primary transition-colors">Features</a>
               <a href="#how-it-works" className="text-foreground/60 hover:text-primary transition-colors">How it works</a>
-              <a href="mailto:hello@careconnect.ai" className="text-foreground/60 hover:text-primary transition-colors">Book a Demo</a>
+              <a href="#request-demo" className="text-foreground/60 hover:text-primary transition-colors">Book a Demo</a>
             </div>
             <div className="flex flex-col gap-2 text-sm">
               <span className="font-semibold text-foreground mb-1">Company</span>
-              <a href="mailto:hello@careconnect.ai" className="text-foreground/60 hover:text-primary transition-colors">Contact</a>
+              <a href="#request-demo" className="text-foreground/60 hover:text-primary transition-colors">Contact</a>
               <span className="text-foreground/40">Privacy Policy</span>
               <span className="text-foreground/40">Terms of Service</span>
             </div>

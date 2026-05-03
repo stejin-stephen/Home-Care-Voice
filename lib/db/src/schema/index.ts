@@ -5,3 +5,4 @@ export * from "./call_logs";
 export * from "./reminders";
 export * from "./escalations";
 export * from "./voice_agent_config";
+export * from "./leads";
