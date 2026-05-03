@@ -61,21 +61,21 @@ export default function Home() {
   const steps = [
     {
       number: "01",
-      title: "Connect Clara to your number",
+      title: "Clara answers — every call, every time",
       description:
-        "Forward your agency's main line to Clara — or give her a dedicated number. Setup takes under 15 minutes with no new hardware.",
+        "A family member calls at 2 AM. Clara picks up immediately, greets them in their language, and handles the conversation with warmth and professionalism — just like your best coordinator would.",
     },
     {
       number: "02",
-      title: "Configure her for your agency",
+      title: "Every call is logged and transcribed instantly",
       description:
-        "Set her languages, your escalation contacts, and your scheduling rules in the CareConnect dashboard. She learns your workflow, not the other way around.",
+        "The moment a call ends, it appears in your CareConnect dashboard — fully transcribed, timestamped, and searchable. No more handwritten notes or missed details.",
     },
     {
       number: "03",
-      title: "She handles the phones — you handle care",
+      title: "Clara resolves it — or escalates to you",
       description:
-        "Clara answers every call, logs it instantly, and escalates when it matters. Your coordinators get back hours every day to focus on the people who need them.",
+        "Routine calls (schedule checks, reminders, shift confirmations) are handled and closed. Anything urgent — a missed caregiver, a medical concern — is escalated to your on-call coordinator within 2 minutes.",
     },
   ];
 
@@ -125,9 +125,9 @@ export default function Home() {
             Clara is answering calls right now
           </div>
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-foreground mb-6 leading-tight">
-            The home care agency{" "}
+            Meet Clara, your{" "}
             <span className="text-primary relative whitespace-nowrap">
-              that answers every call.
+              24/7 AI Care Coordinator.
               <svg
                 className="absolute -bottom-2 left-0 w-full h-3 text-secondary/30"
                 viewBox="0 0 200 9"
@@ -144,7 +144,7 @@ export default function Home() {
             </span>
           </h1>
           <p className="text-xl text-foreground/70 mb-10 max-w-2xl mx-auto leading-relaxed">
-            CareConnect gives your agency an AI voice assistant named Clara — available 24/7 in 5 languages, handling scheduling, reminders, and urgent escalations so your coordinators can focus on people, not phones.
+            CareConnect gives your home care agency an AI voice assistant that answers every call, in 5 languages, around the clock — handling scheduling, reminders, and urgent escalations so your team can focus on delivering care.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button
